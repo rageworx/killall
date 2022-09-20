@@ -102,8 +102,9 @@ void killProcessByName( const char* filename, bool enm )
                 {
                     // ask to user.
                     fprintf( stdout, 
-                             "Process %s may killed, proceed (Y/n)? ",
-                             pEntry.szExeFile );
+                             "Process %s (%u) may killed, proceed (Y/n)? ",
+                             pEntry.szExeFile,
+                             (DWORD)pEntry.th32ProcessID );
                     fflush( stdout );
                     char tmpbuff[2] = {0};
                     while (true)
@@ -125,8 +126,9 @@ void killProcessByName( const char* filename, bool enm )
                     if ( ( optpar_verbose > 0 ) && ( optpar_quiet == 0 ) )
                     {
                         fprintf( stdout,
-                                 "%s killed.\n",
-                                 pEntry.szExeFile );
+                                 "%s (%u) killed.\n",
+                                 pEntry.szExeFile,
+                                 (DWORD)pEntry.th32ProcessID );
                     }
                 }
                 else
