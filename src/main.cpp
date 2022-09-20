@@ -11,6 +11,27 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <getopt.h>
+
+static struct option long_opts[] = {
+    { "exact",          no_argument,        0, 'e' },
+    { "ignore-case",    no_argument,        0, 'I' },
+    { "preocess-group", no_argument,        0, 'g' },
+    { "interactive",    no_argument,        0, 'i' },
+    { "list",           no_argument,        0, 'l' },
+    { "ns",             no_argument,        0, 'n' },
+    { "older-than",     required_argument,  0, 'o' },
+    { "quiet",          no_argument,        0, 'q' },
+    { "ragexp",         required_argument,  0, 'r' },
+    { "signal",         no_argument,        0, 's' },
+    { "user",           required_argument,  0, 'u' },
+    { "verbose",        no_argument,        0, 'v' },
+    { "version",        no_argument,        0, 'V' },
+    { "wait",           no_argument,        0, 'w' },
+    { "younger-than",   required_argument,  0, 'y' },
+    { "context",        no_argument,        0, 'Z' },
+    { NULL, 0, 0, 0 }
+};
 
 using namespace std;
 
@@ -129,13 +150,13 @@ void killProcessByName( const char* filename, bool enm )
 
 void showSignalNames()
 {
-    fprintf( stdout,
-             "HUP INT QUIT ILL TRAP ABRT IOT BUS FPE KILL USR1 SEGV USR2 PIPE ALRM TERM STKFLT CHLD CONT STOP TSTP TTIN TTOU URG XCPU XFSZ VTALRM PROF WINCH IO PWR SYS UNUSED\n" );
+    fprintf( stdout, "SIGTERM\n" );
 }
 
 void showVersion()
 {
     const char aboutIt[] = \
+"killall for MSYS2 and MinGW-W64, Version 0.2\n"
 "Copyright (C) 2022 Raphael Kim (rageworx-at-gmail.com)\n"
 "\n"
 "this killall windows version comes with ABSOLUTELY NO WARRANTY.\n"
@@ -195,6 +216,7 @@ void showHelp()
 "      Send this signal instead of SIGTERM.\n"
 "\n"
 "-u, --user\n"
+"      * it may not availed on Windows. *\n"
 "      Kill only processes the specified user owns.  Command\n"
 "      names are optional.\n"
 "\n"
@@ -220,6 +242,7 @@ void showHelp()
 "      hours, days, weeks, Months and years respectively.\n"
 "\n"
 "-Z, --context\n"
+"      * this version not availed for this option *\n"
 "      Specify security context: kill only processes having\n"
 "      security context that match with given extended regular\n"
 "      expression pattern.  Must precede other arguments on the\n"
@@ -245,7 +268,10 @@ int main( int argc, char** argv )
     // getopt
     for(;;)
     {
-        int opt = getopt( argc, argv, ":heIgilnoqrsuvVwyZ" );
+        int optidx = 0;
+        //int opt = getopt( argc, argv, ":heIgilnoqrsuvVwyZ" );
+        int opt = getopt_long( argc, argv, ":heIgilnoqrsuvVwyZ",
+                               long_opts, &optidx );
         if ( opt >= 0 )
         {
             switch( (char)opt )
