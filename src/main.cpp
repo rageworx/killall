@@ -13,23 +13,25 @@
 #include <algorithm>
 #include <getopt.h>
 
+#define VERSION_S       "0.2"
+
 static struct option long_opts[] = {
     { "exact",          no_argument,        0, 'e' },
     { "ignore-case",    no_argument,        0, 'I' },
-    { "preocess-group", no_argument,        0, 'g' },
+    { "preocess-group", required_argument,  0, 'g' },
     { "interactive",    no_argument,        0, 'i' },
     { "list",           no_argument,        0, 'l' },
-    { "ns",             no_argument,        0, 'n' },
+    { "ns",             required_argument,  0, 'n' },
     { "older-than",     required_argument,  0, 'o' },
     { "quiet",          no_argument,        0, 'q' },
     { "ragexp",         required_argument,  0, 'r' },
-    { "signal",         no_argument,        0, 's' },
+    { "signal",         required_argument,  0, 's' },
     { "user",           required_argument,  0, 'u' },
     { "verbose",        no_argument,        0, 'v' },
     { "version",        no_argument,        0, 'V' },
     { "wait",           no_argument,        0, 'w' },
     { "younger-than",   required_argument,  0, 'y' },
-    { "context",        no_argument,        0, 'Z' },
+    { "context",        required_argument,  0, 'Z' },
     { NULL, 0, 0, 0 }
 };
 
@@ -158,15 +160,42 @@ void showSignalNames()
 void showVersion()
 {
     const char aboutIt[] = \
-"killall for MSYS2 and MinGW-W64, Version 0.2\n"
+"killall for MSYS2 and MinGW-W64, Version %s\n"
 "Copyright (C) 2022 Raphael Kim (rageworx-at-gmail.com)\n"
 "\n"
 "this killall windows version comes with ABSOLUTELY NO WARRANTY.\n"
 "This is free software, and you are welcome to redistribute it under\n"
 "the terms of the GNU General Public License.\n"
-"For more information about these matters, see the files named COPYING.";
+"For more information about these matters, see the files named COPYING.\n";
 
-    fprintf( stdout, "%s\n", aboutIt );
+    fprintf( stdout, aboutIt, VERSION_S );
+}
+
+void showShortHelp()
+{
+    const char shortusage[] = \
+"Usage: killall [-Z CONTEXT] [-u USER] [ -eIgiqrvw ] [ -SIGNAL ] NAME...\n"
+"       killall -l, --list\n"
+"       killall -V, --version\n"
+"\n"
+"  -e,--exact          require exact match for very long names\n"
+"  -I,--ignore-case    case insensitive process name match\n"
+"  -g,--process-group  kill process group instead of process\n"
+"  -y,--younger-than   kill processes younger than TIME\n"
+"  -o,--older-than     kill processes older than TIME\n"
+"  -i,--interactive    ask for confirmation before killing\n"
+"  -l,--list           list all known signal names\n"
+"  -q,--quiet          don't print complaints\n"
+"  -r,--regexp         interpret NAME as an extended regular expression\n"
+"  -s,--signal SIGNAL  send this signal instead of SIGTERM\n"
+"  -u,--user USER      kill only process(es) running as USER\n"
+"  -v,--verbose        report if the signal was successfully sent\n"
+"  -V,--version        display version information\n"
+"  -w,--wait           wait for processes to die\n"
+"  -Z,--context REGEXP kill only process(es) having context\n"
+"                      (must precede other arguments)";
+
+    fprintf( stdout, "%s\n", shortusage );
 }
 
 void showHelp()
@@ -341,6 +370,8 @@ int main( int argc, char** argv )
             {
                 fprintf( stdout, "%s\n", "not implemented feature." );
             }
+            else
+                showShortHelp();
         }
     }
 #ifdef DEBUG    
