@@ -491,7 +491,7 @@ int main( int argc, char** argv )
         bool parm = false;
         string dstnm = plist[cnt];
 
-        if ( ( optpar_exact > 0 ) && ( optpar_killbyPID ) )
+        if ( ( optpar_exact > 0 ) && ( optpar_killbyPID == 0 ) )
         {
             size_t fpos = dstnm.find_last_of( "." );
 
