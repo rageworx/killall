@@ -352,20 +352,6 @@ void showHelp()
 
 int main( int argc, char** argv )
 {
-#if 0
-    // get names
-    for ( int cnt=1; cnt<argc; cnt++ )
-    {
-        if ( strlen( argv[cnt] ) > 0 )
-        {
-            if ( argv[cnt][0] != '-' )
-            {
-                plist.push_back( argv[cnt] );
-            }
-        }
-    }
-#endif
-
     // getopt
     for(;;)
     {
@@ -505,7 +491,7 @@ int main( int argc, char** argv )
         bool parm = false;
         string dstnm = plist[cnt];
 
-        if ( optpar_exact > 0 )
+        if ( ( optpar_exact > 0 ) && ( optpar_killbyPID ) )
         {
             size_t fpos = dstnm.find_last_of( "." );
 
