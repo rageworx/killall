@@ -11,6 +11,7 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <csignal>
 #include <getopt.h>
 
 #define VERSION_S       "0.3"
@@ -57,6 +58,69 @@ static int opterr_notsupported = 0;
 static int opterr_notimplemented = 0;
 static string optpar_param_s;
 static vector<string> plist;
+
+int convStr2Sig( const char* ss )
+{
+    if ( ss != NULL )
+    {
+        if ( strncmp( ss, "INT", 3 ) == 0 )
+        {
+            return SIGINT;
+        }
+        else
+        if ( strncmp( ss, "QUIT", 4 ) == 0 )
+        {
+            //return SIGQUIT;
+            return 3;
+        }
+        else
+        if ( strncmp( ss, "ILL", 3 ) == 0 )
+        {
+            return SIGILL;
+        }
+        else
+        if ( strncmp( ss, "ABRT", 4 ) == 0 )
+        {
+            return SIGABRT;
+        }
+        else
+        if ( strncmp( ss, "FPE", 3 ) == 0 )
+        {
+            return SIGFPE;
+        }
+        else
+        if ( strncmp( ss, "SEGV", 4 ) == 0 )
+        {
+            return SIGSEGV;
+        }
+        else
+        if ( strncmp( ss, "PIPE", 4 ) == 0 )
+        {
+            //return SIGPIPE;
+            return 13;
+        }
+        else
+        if ( strncmp( ss, "ALRM", 4 ) == 0 )
+        {
+            //return SIGALRM;
+            return 14;
+        }
+        else
+        if ( strncmp( ss, "TERM", 4 ) == 0 )
+        {
+            return SIGTERM;
+        }
+        else
+        {
+            // convert to numbers.
+            int testn = atoi( ss );
+            if ( testn > 0 )
+                return testn;
+        }
+    }
+
+    return SIGTERM;
+}
 
 // Windows Processing Killing method -
 void killProcessByName( const char* filename, bool enm )
@@ -137,7 +201,7 @@ void killProcessByName( const char* filename, bool enm )
                 
                 if ( bskip == false )
                 {
-                    TerminateProcess( hProcess, 9 );
+                    TerminateProcess( hProcess, optpar_signal );
 
                     if ( ( optpar_verbose > 0 ) && ( optpar_quiet == 0 ) )
                     {
@@ -168,7 +232,8 @@ void killProcessByName( const char* filename, bool enm )
 
 void showSignalNames()
 {
-    fprintf( stdout, "SIGTERM\n" );
+    fprintf( stdout, "%s\n",
+             "INT QUIT ILL ABRT FPE KILL SEGV PIPE ALRM TERM" );
 }
 
 void showVersion()
@@ -259,7 +324,6 @@ void showHelp()
 "      expression, per regex(3).\n"
 "\n"
 "-s, --signal, -SIGNAL\n"
-"      * it may not availed on Windows. *\n"
 "      Send this signal instead of SIGTERM.\n"
 "\n"
 "-u, --user\n"
@@ -367,6 +431,10 @@ int main( int argc, char** argv )
                     }
                     break;
 
+                case 's':
+                    optpar_signal = convStr2Sig( optarg );
+                    break;
+
                 case 'g':
                 case 'u':
                 case 'w':
@@ -380,7 +448,6 @@ int main( int argc, char** argv )
                     }
                     break;
 
-                case 's':
                 case 'r':
                 case 'o':
                 case 'y':
