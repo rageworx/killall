@@ -15,6 +15,12 @@
 #include <getopt.h>
 
 #define VERSION_S       "0.3"
+#define SUPPORTEDSIGS   10
+
+typedef struct _signaltype {
+    char sigstr[5];
+    int  sigval;
+}signaltype;
 
 static struct option long_opts[] = {
     { "exact",          no_argument,        0, 'e' },
@@ -34,6 +40,19 @@ static struct option long_opts[] = {
     { "younger-than",   required_argument,  0, 'y' },
     { "context",        required_argument,  0, 'Z' },
     { NULL, 0, 0, 0 }
+};
+
+static signaltype supportedsignals[ SUPPORTEDSIGS ] = {
+    { "INT",    SIGINT },
+    { "QUIT",   3 },    /// MinGW-W64 don't have this.
+    { "ILL",    SIGILL },
+    { "ABRT",   SIGABRT },
+    { "FPE",    SIGFPE },
+    { "KILL",   9 },    /// MinGW-W64 don't have this.
+    { "SEGV",   SIGSEGV },
+    { "PIPE",   13 },   /// MinGW-W64 don't have this.
+    { "ALRM",   14 },   /// MinGW-W64 don't have thois.
+    { "TERM",   SIGTERM }
 };
 
 using namespace std;
@@ -61,68 +80,30 @@ static vector<string> plist;
 
 int convStr2Sig( const char* ss )
 {
+    int retsig = 0;
+
     if ( ss != NULL )
     {
-        if ( strncmp( ss, "INT", 3 ) == 0 )
+
+        for ( size_t cnt=0; cnt<SUPPORTEDSIGS; cnt++ )
         {
-            return SIGINT;
+            if ( strncmp( ss, supportedsignals[cnt].sigstr, 4 ) == 0 )
+                return supportedsignals[cnt].sigval;
         }
-        else
-        if ( strncmp( ss, "QUIT", 4 ) == 0 )
-        {
-            //MinGW-W64 don't have --
-            //return SIGQUIT;
-            return 3;
-        }
-        else
-        if ( strncmp( ss, "ILL", 3 ) == 0 )
-        {
-            return SIGILL;
-        }
-        else
-        if ( strncmp( ss, "ABRT", 4 ) == 0 )
-        {
-            return SIGABRT;
-        }
-        else
-        if ( strncmp( ss, "FPE", 3 ) == 0 )
-        {
-            return SIGFPE;
-        }
-        else
-        if ( strncmp( ss, "SEGV", 4 ) == 0 )
-        {
-            return SIGSEGV;
-        }
-        else
-        if ( strncmp( ss, "PIPE", 4 ) == 0 )
-        {
-            //MinGW-W64 don't have --
-            //return SIGPIPE;
-            return 13;
-        }
-        else
-        if ( strncmp( ss, "ALRM", 4 ) == 0 )
-        {
-            //MinGW-W64 don't have --
-            //return SIGALRM;
-            return 14;
-        }
-        else
-        if ( strncmp( ss, "TERM", 4 ) == 0 )
-        {
-            return SIGTERM;
-        }
-        else
+
+        if ( retsig == 0 )
         {
             // convert to numbers.
-            int testn = atoi( ss );
-            if ( ( testn > 0 ) && ( testn < 200 ) )
-                return testn;
+            retsig = atoi( ss );
+            if ( ( retsig > 0 ) && ( retsig < 200 ) )
+                return retsig;
         }
     }
 
-    return SIGTERM;
+    if ( retsig == 0 )
+        retsig = SIGTERM;
+
+    return retsig;
 }
 
 // Windows Processing Killing method -
@@ -235,8 +216,12 @@ void killProcessByName( const char* filename, bool enm )
 
 void showSignalNames()
 {
-    fprintf( stdout, "%s\n",
-             "INT QUIT ILL ABRT FPE KILL SEGV PIPE ALRM TERM" );
+    for( size_t cnt=0; cnt<SUPPORTEDSIGS; cnt++ )
+    {
+        fprintf( stdout, "%s ", supportedsignals[cnt].sigstr );
+    }
+
+    fprintf( stdout, "\n" );
 }
 
 void showVersion()
