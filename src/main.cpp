@@ -199,6 +199,7 @@ void showShortHelp()
 "  -o,--older-than     kill processes older than TIME\n"
 "  -i,--interactive    ask for confirmation before killing\n"
 "  -l,--list           list all known signal names\n"
+"  -n,--ns             kill process by PID.\n"
 "  -q,--quiet          don't print complaints\n"
 "  -r,--regexp         interpret NAME as an extended regular expression\n"
 "  -s,--signal SIGNAL  send this signal instead of SIGTERM\n"
@@ -358,7 +359,11 @@ int main( int argc, char** argv )
                     break;
 
                 case 'n':
-                    optpar_killbyPID = 1;
+                    {
+                        if ( optpar_killbyPID == 0 )
+                            optpar_killbyPID = 1;
+                        plist.push_back( optarg );
+                    }
                     break;
 
                 case 'g':
