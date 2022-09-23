@@ -13,7 +13,7 @@
 #include <algorithm>
 #include <getopt.h>
 
-#define VERSION_S       "0.2"
+#define VERSION_S       "0.3"
 
 static struct option long_opts[] = {
     { "exact",          no_argument,        0, 'e' },
@@ -284,7 +284,8 @@ void showHelp()
 
 int main( int argc, char** argv )
 {
-    // get names 
+#if 0
+    // get names
     for ( int cnt=1; cnt<argc; cnt++ )
     {
         if ( strlen( argv[cnt] ) > 0 )
@@ -295,13 +296,14 @@ int main( int argc, char** argv )
             }
         }
     }
+#endif
 
     // getopt
     for(;;)
     {
         int optidx = 0;
-        //int opt = getopt( argc, argv, ":heIgilnoqrsuvVwyZ" );
-        int opt = getopt_long( argc, argv, ":heIgilnoqrsuvVwyZ",
+        int opt = getopt_long( argc, argv, 
+                               " :heIg:iln:o:qr:s:u:vVwy:Z:",
                                long_opts, &optidx );
         if ( opt >= 0 )
         {
@@ -311,6 +313,11 @@ int main( int argc, char** argv )
                 case 'h':
                     showHelp();
                     return 0;
+
+                case 0:
+                    printf( "case 0!\n" );
+                    fflush( stdout );
+                    break;
 
                 case 'l':
                     showSignalNames();
@@ -341,6 +348,12 @@ int main( int argc, char** argv )
                 case 'w':
                     // unsupported on windows.
                     opterr_notsupported = 1;
+                    if ( optpar_verbose > 0 )
+                    {
+                        fprintf( stdout,
+                                 "optcion '%c' is not supported.\n",
+                                 (char)opt );
+                    }
                     break;
 
                 case 's':
@@ -350,28 +363,52 @@ int main( int argc, char** argv )
                 case 'Z':
                     // not implemented options.
                     opterr_notimplemented = 1;
+                    if ( optpar_verbose > 0 )
+                    {
+                        fprintf( stdout,
+                                 "option '%c' is not implemented.\n",
+                                 (char)opt );
+                    }
                     break;
             }
         }
         else
             break;
+    } /// of for( == )
+
+    for( ; optind<argc; optind++ )
+    {
+        const char* pn = argv[optind];
+        if ( pn != NULL )
+        {
+            plist.push_back( pn );
+        }
     }
 
     if ( plist.size() == 0 )
     {
         if ( optpar_quiet == 0 )
         {
+            if ( optpar_verbose > 0 )
+            {
+                fprintf( stdout, "(warning) no process decided.\n" );
+            }
+
             if ( opterr_notsupported > 0 )
             {
-                fprintf( stdout, "%s\n", "not supported feature." );
+                fprintf( stdout, "(warning) %s\n", 
+                         "some options are may not supported." );
             }
             else
             if ( opterr_notimplemented > 0 )
             {
-                fprintf( stdout, "%s\n", "not implemented feature." );
+                fprintf( stdout, "(warning) %s\n", 
+                         "some options are not implemented feature." );
             }
             else
                 showShortHelp();
+
+            fflush( stdout );
         }
     }
 #ifdef DEBUG    
