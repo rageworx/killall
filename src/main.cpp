@@ -70,6 +70,7 @@ int convStr2Sig( const char* ss )
         else
         if ( strncmp( ss, "QUIT", 4 ) == 0 )
         {
+            //MinGW-W64 don't have --
             //return SIGQUIT;
             return 3;
         }
@@ -96,12 +97,14 @@ int convStr2Sig( const char* ss )
         else
         if ( strncmp( ss, "PIPE", 4 ) == 0 )
         {
+            //MinGW-W64 don't have --
             //return SIGPIPE;
             return 13;
         }
         else
         if ( strncmp( ss, "ALRM", 4 ) == 0 )
         {
+            //MinGW-W64 don't have --
             //return SIGALRM;
             return 14;
         }
@@ -114,7 +117,7 @@ int convStr2Sig( const char* ss )
         {
             // convert to numbers.
             int testn = atoi( ss );
-            if ( testn > 0 )
+            if ( ( testn > 0 ) && ( testn < 200 ) )
                 return testn;
         }
     }
