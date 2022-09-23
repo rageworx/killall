@@ -52,6 +52,7 @@ static int optpar_wait = 0;
 static int optpar_youngerthan = 0;
 static int optpar_context = 0;
 static int optpar_ignorecase = 0;
+static int optpar_killbyPID = 0;
 static int opterr_notsupported = 0;
 static int opterr_notimplemented = 0;
 static string optpar_param_s;
@@ -69,26 +70,39 @@ void killProcessByName( const char* filename, bool enm )
     {
         bool dorm = false;
 
-        string curprocname = pEntry.szExeFile;
-        string targetname  = filename;
-
-        // let case change if option enabled.
-        if ( optpar_ignorecase > 0 )
+        if ( optpar_killbyPID == 0 )
         {
-            transform( curprocname.begin(), curprocname.end(),
-                       curprocname.begin(), ::tolower );
-            transform( targetname.begin(), targetname.end(),
-                       targetname.begin(), ::tolower );
-        }
+            string curprocname = pEntry.szExeFile;
+            string targetname  = filename;
 
-        if ( enm == true )
-        {
-            if ( curprocname == targetname )
-                dorm = true;
+            // let case change if option enabled.
+            if ( optpar_ignorecase > 0 )
+            {
+                transform( curprocname.begin(), curprocname.end(),
+                           curprocname.begin(), ::tolower );
+                transform( targetname.begin(), targetname.end(),
+                           targetname.begin(), ::tolower );
+            }
+
+            if ( enm == true )
+            {
+                if ( curprocname == targetname )
+                    dorm = true;
+            }
+            else
+            {
+                if ( curprocname.find( targetname ) != string::npos )
+                    dorm = true;
+            }
         }
         else
         {
-            if ( curprocname.find( targetname ) != string::npos )
+            DWORD tgPID = (DWORD)atol( filename );
+
+            if ( tgPID == 0 )
+                return;
+
+            if ( tgPID == (DWORD)pEntry.th32ProcessID )
                 dorm = true;
         }
 
@@ -341,6 +355,10 @@ int main( int argc, char** argv )
 
                 case 'I':
                     optpar_ignorecase = 1;
+                    break;
+
+                case 'n':
+                    optpar_killbyPID = 1;
                     break;
 
                 case 'g':
