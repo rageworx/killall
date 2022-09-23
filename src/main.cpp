@@ -14,7 +14,7 @@
 #include <csignal>
 #include <getopt.h>
 
-#define VERSION_S       "0.3"
+#define VERSION_S       "0.4"
 #define SUPPORTEDSIGS   10
 
 typedef struct _signaltype {
